@@ -1,23 +1,6 @@
 #!/bin/bash
 # Script to download Qwen Image Edit models for ComfyUI
-# Requires huggingface_hub
-
-# Ensure we use consistent python executable
-PYTHON_CMD=""
-if command -v python3 &> /dev/null; then
-    PYTHON_CMD="python3"
-elif command -v python &> /dev/null; then
-    PYTHON_CMD="python"
-else
-    echo "Python is not installed. Please install python3."
-    exit 1
-fi
-
-echo "Installing huggingface_hub using $PYTHON_CMD..."
-$PYTHON_CMD -m pip install -U huggingface_hub
-
-# Always use specific python module execution to avoid PATH issues
-HF_CMD="$PYTHON_CMD -m huggingface_hub.cli"
+# Uses wget to avoid Python/pip environment issues
 
 # Dynamically find ComfyUI installation path
 COMFY_DIR=""
@@ -54,23 +37,15 @@ mkdir -p "$VAE_DIR"
 mkdir -p "$TEXT_ENCODER_DIR"
 
 echo "Downloading qwen_image_edit_2509_fp8_e4m3fn.safetensors..."
-$HF_CMD download aidiffuser/Qwen-Image-Edit-2509 qwen_image_edit_2509_fp8_e4m3fn.safetensors --local-dir "$DIFFUSION_DIR" --local-dir-use-symlinks False
+wget -q --show-progress -c -O "$DIFFUSION_DIR/qwen_image_edit_2509_fp8_e4m3fn.safetensors" "https://huggingface.co/aidiffuser/Qwen-Image-Edit-2509/resolve/main/qwen_image_edit_2509_fp8_e4m3fn.safetensors"
 
 echo "Downloading Qwen-Image-Lightning-4steps-V1.0.safetensors..."
-$HF_CMD download lightx2v/Qwen-Image-Lightning Qwen-Image-Lightning-4steps-V1.0.safetensors --local-dir "$LORA_DIR" --local-dir-use-symlinks False
+wget -q --show-progress -c -O "$LORA_DIR/Qwen-Image-Lightning-4steps-V1.0.safetensors" "https://huggingface.co/lightx2v/Qwen-Image-Lightning/resolve/main/Qwen-Image-Lightning-4steps-V1.0.safetensors"
 
 echo "Downloading qwen_image_vae.safetensors..."
-$HF_CMD download Comfy-Org/Qwen-Image_ComfyUI split_files/vae/qwen_image_vae.safetensors --local-dir "$VAE_DIR" --local-dir-use-symlinks False
-if [ -f "$VAE_DIR/split_files/vae/qwen_image_vae.safetensors" ]; then
-    mv -f "$VAE_DIR/split_files/vae/qwen_image_vae.safetensors" "$VAE_DIR/"
-    rm -rf "$VAE_DIR/split_files"
-fi
+wget -q --show-progress -c -O "$VAE_DIR/qwen_image_vae.safetensors" "https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/vae/qwen_image_vae.safetensors"
 
 echo "Downloading qwen_2.5_vl_7b_fp8_scaled.safetensors..."
-$HF_CMD download Comfy-Org/Qwen-Image_ComfyUI split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors --local-dir "$TEXT_ENCODER_DIR" --local-dir-use-symlinks False
-if [ -f "$TEXT_ENCODER_DIR/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors" ]; then
-    mv -f "$TEXT_ENCODER_DIR/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors" "$TEXT_ENCODER_DIR/"
-    rm -rf "$TEXT_ENCODER_DIR/split_files"
-fi
+wget -q --show-progress -c -O "$TEXT_ENCODER_DIR/qwen_2.5_vl_7b_fp8_scaled.safetensors" "https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors"
 
 echo "All models downloaded successfully!"
