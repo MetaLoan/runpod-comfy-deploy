@@ -2,25 +2,22 @@
 # Script to download Qwen Image Edit models for ComfyUI
 # Requires huggingface_hub
 
-# Ensure pip is available
-if command -v pip3 &> /dev/null; then
-    PIP_CMD="pip3"
-elif command -v pip &> /dev/null; then
-    PIP_CMD="pip"
+# Ensure we use consistent python executable
+PYTHON_CMD=""
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
 else
-    PIP_CMD="python3 -m pip"
+    echo "Python is not installed. Please install python3."
+    exit 1
 fi
 
-echo "Installing huggingface_hub..."
-$PIP_CMD install -U huggingface_hub
+echo "Installing huggingface_hub using $PYTHON_CMD..."
+$PYTHON_CMD -m pip install -U huggingface_hub
 
-# Determine huggingface command
-if command -v huggingface-cli &> /dev/null; then
-    HF_CMD="huggingface-cli"
-else
-    # Fallback to python module execution if not directly in PATH
-    HF_CMD="python3 -m huggingface_hub.cli"
-fi
+# Always use specific python module execution to avoid PATH issues
+HF_CMD="$PYTHON_CMD -m huggingface_hub.cli"
 
 # Dynamically find ComfyUI installation path
 COMFY_DIR=""
