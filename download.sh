@@ -4,8 +4,30 @@
 
 pip install -U huggingface_hub
 
-# Define standard model directories for ComfyUI
-MODELS_DIR="/workspace/ComfyUI/models"
+# Dynamically find ComfyUI installation path
+COMFY_DIR=""
+echo "Locating ComfyUI installation..."
+
+# Check common RunPod locations first
+for path in "/workspace/ComfyUI" "/opt/ComfyUI" "/root/ComfyUI" "/home/workspace/ComfyUI" "/home/runner/ComfyUI"; do
+    if [ -d "$path" ]; then
+        COMFY_DIR="$path"
+        break
+    fi
+done
+
+# If not found in common locations, perform a system-wide search
+if [ -z "$COMFY_DIR" ]; then
+    COMFY_DIR=$(find / -maxdepth 5 -type d -name "ComfyUI" -print -quit 2>/dev/null)
+fi
+
+if [ -z "$COMFY_DIR" ]; then
+    echo "Error: Could not find ComfyUI directory on this machine."
+    exit 1
+fi
+
+echo "Found ComfyUI at: $COMFY_DIR"
+MODELS_DIR="$COMFY_DIR/models"
 DIFFUSION_DIR="$MODELS_DIR/diffusion_models"
 LORA_DIR="$MODELS_DIR/loras"
 VAE_DIR="$MODELS_DIR/vae"
